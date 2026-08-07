@@ -26,6 +26,7 @@ class RunTest(unittest.TestCase):
             )
 
         if settings["bootstrap_impl"] == "script":
+            self.assertEqual(sys.argv[1:], ["argument with spaces"])
             # Verify we're running in a venv
             self.assertNotEqual(sys.prefix, sys.base_prefix)
             # .venv/ occurs for a build-time venv.
