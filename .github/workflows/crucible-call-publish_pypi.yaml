@@ -1,67 +1,31 @@
-name: "PR Metadata Checks"
+name: Publish to PyPI
 
 on:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
-      - unlabeled
-      - edited
-
+  workflow_call:
+    inputs:
+      tag_name:
+        description: "release tag: tag that will be released"
+        required: true
+        type: string
 jobs:
-  blocks-do-not-merge:
+  publish_pypi:
+    name: Publish runfiles to PyPI
     runs-on: ubuntu-latest
     steps:
-      - name: Check for "do not merge" label
-        if: "contains(github.event.pull_request.labels.*.name, 'do not merge')"
-        run: |
-          echo "::error::This PR has the 'do not merge' label" \
-               "and cannot be merged."
-          exit 1
-
-      - name: Check PR description for DO NOT SUBMIT/MERGE
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          echo "Checking PR description..."
-          if echo "$PR_BODY" | grep -Ei "DO NOT SUBMIT|DO NOT MERGE"; then
-            echo "::error::This PR description contains" \
-                 "'DO NOT SUBMIT' or 'DO NOT MERGE'" \
-                 "and cannot be merged."
-            exit 1
-          fi
-          echo "PR description is clean."
-
-    needs:
-      - alpha_bridge_inputs
-    if: |-
-      ${{ (success()) && needs.alpha_bridge_inputs.outputs.changed == 'true' }}
-  block-transient-agent-files:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    steps:
-      - name: Check for blocked files
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          echo "Checking for blocked files..."
-          # We use --repo to avoid needing actions/checkout.
-          # This keeps the job lightweight and avoids "not a git repository" errors.
-          changed_files=$(gh pr diff "$PR_NUMBER" --name-only --repo "${{ github.repository }}")
-          blocked_files=$(echo "$changed_files" | grep -E '^.agents/(plans|scratch)(/|$)' || true)
-          if [ -n "$blocked_files" ]; then
-            echo "::error::Files in .agents/plans and" \
-                 ".agents/scratch are permitted in PRs to" \
-                 "facilitate discussion, but are not allowed" \
-                 "to be merged. Please remove them before merging:"
-            echo "$blocked_files"
-            exit 1
-          fi
-          echo "No blocked files found."
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag_name || ((github.event_name == 'schedule' || 
+            github.event_name == 'workflow_run') && 'main' || github.ref_name) 
+            }}
+      - env:
+          # This special value tells pypi that the user identity is supplied within the token
+          TWINE_USERNAME: __token__
+          # Note, the PYPI_API_TOKEN is for the rules-python pypi user, added by @rickylev on
+          # https://github.com/bazel-contrib/rules_python/settings/secrets/actions
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |-
+          bazel run --stamp --embed_label=${{ inputs.tag_name || ((github.event_name == 'schedule' || github.event_name == 'workflow_run') && 'main' || github.ref_name) }} //python/runfiles:wheel.publish
     needs:
       - alpha_bridge_inputs
     if: |-
@@ -73,7 +37,7 @@ jobs:
       actions: read
       contents: read
     concurrency:
-      group: alpha-bridge-inputs-bab4923118731903-${{ github.workflow }}-${{ 
+      group: alpha-bridge-inputs-c8d9284b8897ce19-${{ github.workflow }}-${{ 
         github.sha }}-${{ github.event.schedule || github.event_name }}
       cancel-in-progress: false
       queue: max
@@ -92,7 +56,7 @@ jobs:
           AB_REF: ${{ (github.event_name == 'schedule' || github.event_name == 
             'workflow_run') && 'refs/heads/main' || github.ref }}
           AB_WORKFLOW_DIGEST: 
-            c082a8aafd8e75c158631379d6c8f4d07d1fc39e9330f01198ca252506567779
+            c50c167bdab682fed91d0d4326b8759155766279af6ec0269faa2459992a88fb
           AB_EVENT: ${{ github.event_name }}
           AB_SCHEDULE: ${{ github.event.schedule || '' }}
           AB_VARIABLES: ${{ toJSON(vars) }}

@@ -1,0 +1,35 @@
+name: CI input probe
+on:
+  workflow_dispatch:
+    inputs:
+      probe:
+        type: string
+        required: true
+jobs:
+  nested0:
+    uses: ./.github/workflows/alpha-bridge-ci-consumer.yml
+    with:
+      probe: ${{ inputs.probe }}
+      slot: '0'
+    permissions:
+      contents: read
+      packages: read
+      actions: read
+  nested1:
+    uses: ./.github/workflows/alpha-bridge-ci-consumer.yml
+    with:
+      probe: ${{ inputs.probe }}
+      slot: '1'
+    permissions:
+      contents: read
+      packages: read
+      actions: read
+  nested2:
+    uses: ./.github/workflows/alpha-bridge-ci-consumer.yml
+    with:
+      probe: ${{ inputs.probe }}
+      slot: '2'
+    permissions:
+      contents: read
+      packages: read
+      actions: read
