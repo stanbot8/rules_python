@@ -38,8 +38,8 @@ jobs:
       publish_token: ${{ secrets.publish_token || secrets.BCR_PUBLISH_TOKEN }}
     needs:
     - alpha_bridge_inputs
-    if: ${{ (success()) && needs.alpha_bridge_inputs.outputs.changed == 'true' 
-      }}
+    if: |-
+      ${{ (success()) && needs.alpha_bridge_inputs.outputs.changed == 'true' }}
   alpha_bridge_inputs:
     name: CI input check
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
         AB_REF: ${{ (github.event_name == 'schedule' || github.event_name == 
           'workflow_run') && 'refs/heads/main' || github.ref }}
         AB_WORKFLOW_DIGEST: 
-          5a763b4bb94f7fcd847cd6152e344ff0582d2708085356177f317ffc483dd916
+          5f80d793fa30d19d20c2ec3fd7988a8b9c9719ca08538ed7956c0c176d06caa7
         AB_EVENT: ${{ github.event_name }}
         AB_SCHEDULE: ${{ github.event.schedule || '' }}
         AB_VARIABLES: ${{ toJSON(vars) }}
