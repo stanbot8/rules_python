@@ -18,6 +18,8 @@ jobs:
           ref: ${{ inputs.tag_name || ((github.event_name == 'schedule' || 
             github.event_name == 'workflow_run') && 'main' || github.ref_name) 
             }}
+      - name: Setup Bazel
+        uses: ./.github/actions/setup-bazel
       - env:
           # This special value tells pypi that the user identity is supplied within the token
           TWINE_USERNAME: __token__
@@ -37,7 +39,7 @@ jobs:
       actions: read
       contents: read
     concurrency:
-      group: alpha-bridge-inputs-c8d9284b8897ce19-${{ github.workflow }}-${{ 
+      group: alpha-bridge-inputs-88dd50fdf8e3de1b-${{ github.workflow }}-${{ 
         github.sha }}-${{ github.event.schedule || github.event_name }}
       cancel-in-progress: false
       queue: max
@@ -51,12 +53,12 @@ jobs:
           AB_REPOSITORY: ${{ github.repository }}
           AB_RUN_ID: ${{ github.run_id }}
           AB_HEAD_SHA: ${{ (github.event_name == 'schedule' || github.event_name
-            == 'workflow_run') && '87b8ae6f3583080dae252b4e385b4ca162fc638e' || 
+            == 'workflow_run') && '3773b603ff6d3c02531cbdd4a3081ea23eb2001c' || 
             github.sha }}
           AB_REF: ${{ (github.event_name == 'schedule' || github.event_name == 
             'workflow_run') && 'refs/heads/main' || github.ref }}
           AB_WORKFLOW_DIGEST: 
-            c50c167bdab682fed91d0d4326b8759155766279af6ec0269faa2459992a88fb
+            74b3dcd04e6b366b5b3210f9d05d91d819aa5a4bf9ae708067bdedcc81029e50
           AB_EVENT: ${{ github.event_name }}
           AB_SCHEDULE: ${{ github.event.schedule || '' }}
           AB_VARIABLES: ${{ toJSON(vars) }}

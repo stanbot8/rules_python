@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ (github.event_name == 'schedule' || github.event_name == 
-            'workflow_run') && '87b8ae6f3583080dae252b4e385b4ca162fc638e' || 
+            'workflow_run') && '3773b603ff6d3c02531cbdd4a3081ea23eb2001c' || 
             github.sha }}
       - uses: astral-sh/ruff-action@v4.1.0
         with:
@@ -59,12 +59,12 @@ jobs:
           AB_REPOSITORY: ${{ github.repository }}
           AB_RUN_ID: ${{ github.run_id }}
           AB_HEAD_SHA: ${{ (github.event_name == 'schedule' || github.event_name
-            == 'workflow_run') && '87b8ae6f3583080dae252b4e385b4ca162fc638e' || 
+            == 'workflow_run') && '3773b603ff6d3c02531cbdd4a3081ea23eb2001c' || 
             github.sha }}
           AB_REF: ${{ (github.event_name == 'schedule' || github.event_name == 
             'workflow_run') && 'refs/heads/main' || github.ref }}
           AB_WORKFLOW_DIGEST: 
-            5dbe29d8baa0402c405230f32a23d138c172b35a83a3b95ed34c59aa88f170bb
+            1d869270da7d79eff2773b7a3a2456b3d4f7688e6b352f5b0d5536585d7cd6fb
           AB_EVENT: ${{ github.event_name }}
           AB_SCHEDULE: ${{ github.event.schedule || '' }}
           AB_VARIABLES: ${{ toJSON(vars) }}

@@ -28,12 +28,10 @@ jobs:
           fetch-depth: 0
 
           ref: ${{ (github.event_name == 'schedule' || github.event_name == 
-            'workflow_run') && '87b8ae6f3583080dae252b4e385b4ca162fc638e' || 
+            'workflow_run') && '3773b603ff6d3c02531cbdd4a3081ea23eb2001c' || 
             github.sha }}
       - name: Setup Bazel
-        uses: bazel-contrib/setup-bazel@0.19.0
-        with:
-          bazelisk-version: 1.20.0
+        uses: ./.github/actions/setup-bazel
 
       - name: Configure Git Identity
         run: |
@@ -88,7 +86,7 @@ jobs:
       actions: read
       contents: read
     concurrency:
-      group: alpha-bridge-inputs-93f43983fab61b7c-${{ github.workflow }}-${{ 
+      group: alpha-bridge-inputs-5c80d84480e79bb8-${{ github.workflow }}-${{ 
         github.sha }}-${{ github.event.schedule || github.event_name }}
       cancel-in-progress: false
       queue: max
@@ -102,12 +100,12 @@ jobs:
           AB_REPOSITORY: ${{ github.repository }}
           AB_RUN_ID: ${{ github.run_id }}
           AB_HEAD_SHA: ${{ (github.event_name == 'schedule' || github.event_name
-            == 'workflow_run') && '87b8ae6f3583080dae252b4e385b4ca162fc638e' || 
+            == 'workflow_run') && '3773b603ff6d3c02531cbdd4a3081ea23eb2001c' || 
             github.sha }}
           AB_REF: ${{ (github.event_name == 'schedule' || github.event_name == 
             'workflow_run') && 'refs/heads/main' || github.ref }}
           AB_WORKFLOW_DIGEST: 
-            71074f8059b7761f5b4c516055878e26f6f6425218c03e980b3d14a30f3c6554
+            c3db8aa5b233e97c36098ae1e792ecef026061cb6f50017fca995ed32e658128
           AB_EVENT: ${{ github.event_name }}
           AB_SCHEDULE: ${{ github.event.schedule || '' }}
           AB_VARIABLES: ${{ toJSON(vars) }}

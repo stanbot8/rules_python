@@ -1,6 +1,6 @@
 import os
 
-from dev.release.gh import GitHub
+from dev.release.gh import GitHub, format_complete_issue_warning
 from dev.release.git import Git
 from dev.release.release_issue import (
     RELEASE_TITLE_RE,
@@ -32,17 +32,22 @@ class AddBackports:
                 " tracking issue..."
             )
             try:
-                open_issues = self.gh.get_open_tracking_issues()
-                if len(open_issues) > 1:
+                active_issues, complete_issues = (
+                    self.gh.partition_open_tracking_issues()
+                )
+                for issue in complete_issues:
+                    print(f"::warning::{format_complete_issue_warning(issue)}")
+
+                if len(active_issues) > 1:
                     print(
                         "::error::Multiple open release tracking issues found."
                         " Cannot determine active one:"
                     )
-                    for issue in open_issues:
+                    for issue in active_issues:
                         print(f"- #{issue['number']}: {issue['title']}")
                     return 1
-                elif len(open_issues) == 1:
-                    issue_num = open_issues[0]["number"]
+                elif len(active_issues) == 1:
+                    issue_num = active_issues[0]["number"]
                     print(
                         f"Auto-discovered active release tracking issue: #{issue_num}"
                     )
